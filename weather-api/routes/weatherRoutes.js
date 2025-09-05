@@ -7,6 +7,7 @@ const {
   updateWeather,
   deleteWeather,
 } = require("../controllers/weatherController");
+const { authMiddleware } = require("../middleware/auth-middleware");
 
 const router = express.Router();
 
@@ -17,11 +18,11 @@ const weatherValidation = [
   body("condition").notEmpty().withMessage("Condition is required"),
 ];
 
-// ✅ Routes
-router.post("/", weatherValidation, addWeather);
-router.get("/", getAllWeather);
-router.get("/:id", getWeatherById);
-router.put("/:id", weatherValidation, updateWeather);
-router.delete("/:id", deleteWeather);
+// Routes
+router.get("/", authMiddleware, getAllWeather);
+router.get("/:id", authMiddleware, getWeatherById);
+router.post("/", authMiddleware, weatherValidation, addWeather);
+router.put("/:id", authMiddleware, weatherValidation, updateWeather);
+router.delete("/:id", authMiddleware, deleteWeather);
 
 module.exports = router;

@@ -1,16 +1,21 @@
 const Weather = require("../models/weather");
 const { validationResult } = require("express-validator");
 
-// ✅ POST → Add weather record
+// POST → Add weather record (only logged-in users)
 exports.addWeather = async (req, res) => {
   const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
   try {
     const { city, temperature, condition } = req.body;
-    const weather = new Weather({ city, temperature, condition });
+
+    const weather = new Weather({
+      city,
+      temperature,
+      condition,
+      user: req.user.id, // 🔹 logged-in user ID
+    });
+
     await weather.save();
     res.status(201).json(weather);
   } catch (error) {
@@ -18,55 +23,72 @@ exports.addWeather = async (req, res) => {
   }
 };
 
-// ✅ GET → All records
+// GET → All records
 exports.getAllWeather = async (req, res) => {
   try {
-    const records = await Weather.find();
+    let records;
+    if (req.user.role === "admin") {
+      records = await Weather.find().populate("user", "name email");
+    } else {
+      records = await Weather.find({ user: req.user.id });
+    }
     res.json(records);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// ✅ GET → By ID
+// GET → By ID
 exports.getWeatherById = async (req, res) => {
   try {
     const record = await Weather.findById(req.params.id);
     if (!record) return res.status(404).json({ error: "Record not found" });
+
+    if (req.user.role !== "admin" && record.user.toString() !== req.user.id) {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+
     res.json(record);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// ✅ PUT → Update by ID
+// PUT → Update by ID
 exports.updateWeather = async (req, res) => {
   const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
   try {
-    const { city, temperature, condition } = req.body;
-    const updated = await Weather.findByIdAndUpdate(
-      req.params.id,
-      { city, temperature, condition },
-      { new: true, runValidators: true }
-    );
+    let record = await Weather.findById(req.params.id);
+    if (!record) return res.status(404).json({ error: "Record not found" });
 
-    if (!updated) return res.status(404).json({ error: "Record not found" });
+    if (req.user.role !== "admin" && record.user.toString() !== req.user.id) {
+      return res.status(403).json({ error: "Not authorized" });
+    }
 
-    res.json(updated);
+    record.city = req.body.city;
+    record.temperature = req.body.temperature;
+    record.condition = req.body.condition;
+
+    await record.save();
+    res.json(record);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// ✅ DELETE → By ID
+// DELETE → By ID
 exports.deleteWeather = async (req, res) => {
   try {
-    const deleted = await Weather.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ error: "Record not found" });
+    const record = await Weather.findById(req.params.id);
+    if (!record) return res.status(404).json({ error: "Record not found" });
+
+    if (req.user.role !== "admin" && record.user.toString() !== req.user.id) {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+
+    await record.deleteOne();
     res.json({ message: "Record deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
