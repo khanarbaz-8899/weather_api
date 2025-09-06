@@ -2,11 +2,12 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const errorHandler = require("./middleware/errorHandler"); // fixed path
+const errorHandler = require("./middleware/errorHandler");
 
 // Import routes
 const weatherRoutes = require("./routes/weatherRoutes");
 const authRoutes = require("./routes/authRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
@@ -17,8 +18,9 @@ app.use(express.json());
 // Routes
 app.use("/api/auth", authRoutes);       // Register & Login
 app.use("/api/weather", weatherRoutes); // Weather CRUD
+app.use("/api/admin", adminRoutes);     // Admin APIs
 
-// Global error handler (should be after routes)
+// Global error handler
 app.use(errorHandler);
 
 // DB & Server start
