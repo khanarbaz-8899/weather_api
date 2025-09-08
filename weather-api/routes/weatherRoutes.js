@@ -7,7 +7,7 @@ const {
   updateWeather,
   deleteWeather,
 } = require("../controllers/weatherController");
-const { authMiddleware } = require("../middleware/auth-middleware");
+const { authMiddleware } = require("../middlewares/auth-middleware");
 
 const router = express.Router();
 

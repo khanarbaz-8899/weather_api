@@ -1,30 +1,18 @@
 const express = require("express");
-const { body } = require("express-validator");
 const { registerUser, loginUser } = require("../controllers/authController");
+const { userValidation} = require("../validators/joiSchemas");
+const validate = require("../middlewares/validate");
+
+
+
+
 
 const router = express.Router();
 
-// 🔹 Register
-router.post(
-  "/register",
-  [
-    body("name").notEmpty().withMessage("Name is required"),
-    body("email").isEmail().withMessage("Valid email is required"),
-    body("password")
-      .isLength({ min: 6 })
-      .withMessage("Password must be at least 6 characters"),
-  ],
-  registerUser
-);
+// 🔹 Register (Joi validation via middleware)
+router.post("/register", validate(userValidation.register), registerUser);
 
 // 🔹 Login
-router.post(
-  "/login",
-  [
-    body("email").isEmail().withMessage("Valid email is required"),
-    body("password").notEmpty().withMessage("Password is required"),
-  ],
-  loginUser
-);
+router.post("/login", validate(userValidation.login), loginUser);
 
 module.exports = router;
