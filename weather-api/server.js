@@ -10,6 +10,7 @@ const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const forgotRoutes = require("./routes/forgotRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use("/api/weather", weatherRoutes); // Weather CRUD
 app.use("/api/admin", adminRoutes);     // Admin APIs
 app.use("/api/profile", profileRoutes); //  Fixed - Added missing slash
 app.use("/api/forgot", forgotRoutes);   //  Fixed - Added missing slash
+app.use("/api/users", userRoutes);
 
 // Global error handler
 app.use(errorHandler);

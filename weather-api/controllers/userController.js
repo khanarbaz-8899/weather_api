@@ -12,16 +12,17 @@ exports.forgotPassword = async (req, res) => {
 
     const resetToken = crypto.randomBytes(20).toString("hex");
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
+    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 min
     await user.save();
 
+    // Normally yahan email bhejna hota hai
     res.json({ message: "Password reset token generated", token: resetToken });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// 🔹 Reset Password
+// 🔹 Reset Password (via token)
 exports.resetPassword = async (req, res) => {
   try {
     const { token, newPassword } = req.body;
@@ -31,7 +32,8 @@ exports.resetPassword = async (req, res) => {
       resetPasswordExpire: { $gt: Date.now() },
     });
 
-    if (!user) return res.status(400).json({ message: "Invalid or expired token" });
+    if (!user)
+      return res.status(400).json({ message: "Invalid or expired token" });
 
     user.password = await bcrypt.hash(newPassword, 10);
     user.resetPasswordToken = undefined;
@@ -39,6 +41,33 @@ exports.resetPassword = async (req, res) => {
 
     await user.save();
     res.json({ message: "Password has been reset successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// 🔹 Change Password (via login + JWT)
+exports.changePassword = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const { oldPassword, newPassword } = req.body;
+
+    // check old password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Old password is incorrect" });
+    }
+
+    // set new password
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.json({ message: "Password updated successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

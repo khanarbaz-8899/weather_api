@@ -13,4 +13,6 @@ const router = express.Router();
 router.get("/profile", authMiddleware, getProfile);
 router.put("/profile", authMiddleware, validate(userValidation.updateProfile), updateProfile);
 
+
+
 module.exports = router;
