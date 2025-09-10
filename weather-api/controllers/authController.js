@@ -54,6 +54,7 @@ exports.loginUser = async (req, res) => {
     // ✅ yaha instance method use karo
     const isMatch = await user.matchPassword(password);
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+   
 
     res.json({
       token: generateToken(user),

@@ -14,19 +14,24 @@ const authMiddleware = async (req, res, next) => {
   try {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
     console.log("✅ Decoded JWT:", decoded);
 
-    // Find user by ID (if you sign { id: user._id } in token)
+    // Find user by ID
     const user = await User.findById(decoded.id).select("-password");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    req.user = user;
+    // 🔹 Normalize user object
+    req.user = {
+      id: user._id.toString(),
+      role: user.role,
+      name: user.name,
+      email: user.email,
+    };
+
     req.token = token;
-    req.id = user._id;
 
     next();
   } catch (error) {
@@ -35,13 +40,6 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-// 🔹 Admin Middleware
-const adminMiddleware = (req, res, next) => {
-  if (req.user && req.user.role === "admin") {
-    next();
-  } else {
-    res.status(403).json({ message: "Access denied: Admins only" });
-  }
-};
+// auth-middleware.js
+module.exports = { authMiddleware };
 
-module.exports = { authMiddleware, adminMiddleware };
