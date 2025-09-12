@@ -1,6 +1,7 @@
 import { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { toast } from "react-toastify";
 
 export default function Login() {
   const { login } = useContext(AuthContext);
@@ -13,11 +14,20 @@ export default function Login() {
   try {
     const response = await login(email, password); // store return value
     console.log("Login response:", response);
-    alert("Login Successful");
+    toast.success("Login Successful");
     navigate("/weather");
   } catch (err) {
-    alert(err.response?.data?.message || "Login failed");
+  // 🔹 backend se "errors" array aata hai
+  const errors = err.response?.data?.errors;
+
+  if (errors && Array.isArray(errors)) {
+    errors.forEach((msg) => {
+      toast.error(msg); // ✅ Har validation error ko toast me show karo
+    });
+  } else {
+    toast.error(err.response?.data?.message || "Login failed");
   }
+}
 };
 
   return (

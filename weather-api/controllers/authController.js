@@ -1,6 +1,5 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
-const { validationResult } = require("express-validator");
 
 // 🔹 Utility → Generate JWT
 const generateToken = (user) => {
@@ -11,11 +10,8 @@ const generateToken = (user) => {
   );
 };
 
-// 🔹 Register User
+// 🔹 Register User (Joi validation middleware already check karega)
 exports.registerUser = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-
   const { name, email, password } = req.body;
 
   try {
@@ -36,25 +32,21 @@ exports.registerUser = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("Register Error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// 🔹 Login User
+// 🔹 Login User (Joi validation middleware already check karega)
 exports.loginUser = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-
   const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
-    // ✅ yaha instance method use karo
     const isMatch = await user.matchPassword(password);
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
-   
 
     res.json({
       token: generateToken(user),
@@ -66,6 +58,7 @@ exports.loginUser = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("Login Error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

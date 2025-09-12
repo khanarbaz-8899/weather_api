@@ -1,6 +1,7 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -11,14 +12,15 @@ import WeatherForm from "./pages/WeatherForm";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Navbar from "./components/Navbar";
+import { Footer } from "./components/Footer";
 
 
 export default function App() {
   return (
     <AuthProvider>
-     
+
       <Router>
-        <Navbar/>
+        <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -31,13 +33,20 @@ export default function App() {
           <Route path="/weather" element={
             <ProtectedRoute><WeatherList /></ProtectedRoute>
           } />
+          <Route path="/records" element={
+            <Navigate to="/weather" replace />
+          } />
+          <Route path="/form" element={
+            <Navigate to="/weather/add" replace />
+          } />
+          <Route path="/weather/edit/:_id" element={
+            <ProtectedRoute><WeatherForm /></ProtectedRoute>
+          } />
           <Route path="/weather/add" element={
             <ProtectedRoute><WeatherForm /></ProtectedRoute>
           } />
-          <Route path="/weather/edit/:id" element={
-            <ProtectedRoute><WeatherForm /></ProtectedRoute>
-          } />
         </Routes>
+         <Footer />
       </Router>
     </AuthProvider>
   );

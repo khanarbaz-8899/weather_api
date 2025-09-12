@@ -1,9 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 
 export default function Navbar() {
   const { user, logout } = useContext(AuthContext);
+
+  // ✅ derive isLoggedIn from user
+  const isLoggedIn = !!user;
 
   return (
     <nav className="flex justify-between items-center bg-gray-800 text-white p-4">
@@ -11,24 +14,49 @@ export default function Navbar() {
         <Link to="/">🌦 Weather App</Link>
       </h1>
 
-      <div className="space-x-4">
-        {!user ? (
+      <ul className="flex space-x-4">
+        <li>
+          <NavLink to="/" className={({ isActive }) => isActive ? "underline" : ""}>
+            Home
+          </NavLink>
+        </li>
+
+        {isLoggedIn && (
           <>
-            <Link to="/login" className="hover:text-gray-300">Login</Link>
-            <Link to="/register" className="hover:text-gray-300">Register</Link>
-          </>
-        ) : (
-          <>
-            <span>Hello, {user.name}</span>
-            <button 
-              onClick={logout} 
-              className="bg-red-600 px-3 py-1 rounded hover:bg-red-500"
-            >
-              Logout
-            </button>
+            <li>
+              <NavLink to="/records" className={({ isActive }) => isActive ? "underline" : ""}>
+                Weather Records
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/form" className={({ isActive }) => isActive ? "underline" : ""}>
+                Weather Form
+              </NavLink>
+            </li>
           </>
         )}
-      </div>
+
+        {isLoggedIn ? (
+          <li>
+            <button onClick={logout} className="hover:underline">
+              Logout
+            </button>
+          </li>
+        ) : (
+          <>
+            <li>
+              <NavLink to="/register" className={({ isActive }) => isActive ? "underline" : ""}>
+                Register
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/login" className={({ isActive }) => isActive ? "underline" : ""}>
+                Login
+              </NavLink>
+            </li>
+          </>
+        )}
+      </ul>
     </nav>
   );
 }

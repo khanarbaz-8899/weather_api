@@ -1,7 +1,7 @@
 const Weather = require("../models/weather");
 const { validationResult } = require("express-validator");
 
-// POST → Add weather record (only logged-in users)
+// POST → Add weather record
 exports.addWeather = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
@@ -13,7 +13,7 @@ exports.addWeather = async (req, res) => {
       city,
       temperature,
       condition,
-      user: req.user.id, // 🔹 logged-in user ID
+      user: req.user.id,
     });
 
     await weather.save();
@@ -54,7 +54,7 @@ exports.getWeatherById = async (req, res) => {
   }
 };
 
-// PUT → Update by ID
+// PUT → Update
 exports.updateWeather = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
@@ -78,7 +78,7 @@ exports.updateWeather = async (req, res) => {
   }
 };
 
-// DELETE → By ID
+// DELETE → Remove
 exports.deleteWeather = async (req, res) => {
   try {
     const record = await Weather.findById(req.params.id);
