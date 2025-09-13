@@ -12,10 +12,10 @@ exports.forgotPassword = async (req, res) => {
 
     const resetToken = crypto.randomBytes(20).toString("hex");
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 min
+    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
     await user.save();
 
-    // Normally yahan email bhejna hota hai
+    // Normally you would send this token via email
     res.json({ message: "Password reset token generated", token: resetToken });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -76,7 +76,7 @@ exports.changePassword = async (req, res) => {
 // 🔹 Get Profile
 exports.getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const user = await User.findById(req.user.id).select("-password"); // exclude password
     res.json(user);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -92,7 +92,9 @@ exports.updateProfile = async (req, res) => {
 
     if (req.body.name) user.name = req.body.name;
     if (req.body.email) user.email = req.body.email;
+
     if (req.body.password) {
+      // hash the new password
       user.password = await bcrypt.hash(req.body.password, 10);
     }
 
@@ -108,3 +110,78 @@ exports.updateProfile = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// 🔹 Get All Users (Admin Only)
+exports.getAllUsers = async (req, res) => {
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Access denied: Admins only" });
+    }
+
+    const users = await User.find().select("-password"); // hide passwords
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+// DELETE → Remove
+exports.deleteUser = async (req, res) => {
+  try {
+    const record = await User.findById(req.params.id);
+    if (!record) return res.status(404).json({ error: "Record not found" });
+
+    if (req.user.role !== "admin" && record.user.toString() !== req.user.id) {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+
+    await record.deleteOne();
+    res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+// 🔹 Get Single User by ID (Admin only)
+exports.getUserById = async (req, res) => {
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Access denied: Admins only" });
+    }
+
+    const user = await User.findById(req.params.id).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// 🔹 Update User (Admin only)
+exports.updateUser = async (req, res) => {
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Access denied: Admins only" });
+    }
+
+    const { name, email, role } = req.body;
+    const user = await User.findById(req.params.id);
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (role) user.role = role;
+
+    const updatedUser = await user.save();
+
+    res.json({
+      id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      role: updatedUser.role,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+

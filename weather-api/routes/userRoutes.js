@@ -5,6 +5,10 @@ const {
   forgotPassword,
   resetPassword,
   changePassword,
+  getAllUsers,
+  deleteUser,
+  updateUser,
+  getUserById,
 } = require("../controllers/userController");
 const { userValidation } = require("../validators/joiSchemas");
 const validate = require("../middlewares/validate");
@@ -40,5 +44,12 @@ router.post(
   validate(userValidation.changePassword),
   changePassword
 );
+
+// 🔹 Get All Users (Admin Only)
+router.get("/users", authMiddleware, getAllUsers); // all users
+router.get("/:id", authMiddleware, getUserById);   // 👈 single user
+router.put("/:id", authMiddleware, updateUser);    // 👈 update user
+router.delete("/:id", authMiddleware, deleteUser); // delete user
+
 
 module.exports = router;

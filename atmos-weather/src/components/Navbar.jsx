@@ -28,11 +28,19 @@ export default function Navbar() {
                 Weather Records
               </NavLink>
             </li>
-            <li>
+            {/* <li>
               <NavLink to="/form" className={({ isActive }) => isActive ? "underline" : ""}>
                 Weather Form
               </NavLink>
-            </li>
+            </li> */}
+              {/* ✅ Admin-only link */}
+            {user?.role === "admin" && (
+              <li>
+                <NavLink to="/users" className={({ isActive }) => isActive ? "underline" : ""}>
+                  Users
+                </NavLink>
+              </li>
+                 )}
           </>
         )}
 
