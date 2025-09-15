@@ -17,7 +17,7 @@ const app = express();
 // Middleware
 
 app.use(cors({
-  origin: ["http://localhost:5173", "https://localhost:5000/api>"], // React app URLs
+  origin: ["http://localhost:5173", "https://render-express-deployment-1-ep2b.onrender.com/api>"], // React app URLs
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"]  // ✅ important
 }));
