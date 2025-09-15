@@ -44,12 +44,16 @@ router.post(
   validate(userValidation.changePassword),
   changePassword
 );
+router.get("/test", (req, res) => {
+  res.json({ message: "Users route is working!" });
+});
 
-// 🔹 Get All Users (Admin Only)
-router.get("/users", authMiddleware, getAllUsers); // all users
-router.get("/:id", authMiddleware, getUserById);   // 👈 single user
-router.put("/:id", authMiddleware, updateUser);    // 👈 update user
-router.delete("/:id", authMiddleware, deleteUser); // delete user
+
+// 🔹 Users (Admin only)
+router.get("/", authMiddleware, getAllUsers);       // ✅ /api/users
+router.get("/:id", authMiddleware, getUserById);    // ✅ /api/users/:id
+router.put("/:id", authMiddleware, updateUser);     // ✅ /api/users/:id
+router.delete("/:id", authMiddleware, deleteUser);  // ✅ /api/users/:id
 
 
 module.exports = router;
