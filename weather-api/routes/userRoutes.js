@@ -50,7 +50,7 @@ router.get("/test", (req, res) => {
 
 
 // 🔹 Users (Admin only)
-router.get("/", authMiddleware, getAllUsers);       // ✅ /api/users
+router.get("/weather", authMiddleware, getAllUsers);       // ✅ /api/users
 router.get("/:id", authMiddleware, getUserById);    // ✅ /api/users/:id
 router.put("/:id", authMiddleware, updateUser);     // ✅ /api/users/:id
 router.delete("/:id", authMiddleware, deleteUser);  // ✅ /api/users/:id
