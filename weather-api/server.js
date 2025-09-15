@@ -15,7 +15,13 @@ const userRoutes = require("./routes/userRoutes");
 const app = express();
 
 // Middleware
-app.use(cors());
+
+app.use(cors({
+  origin: ["http://localhost:5173", "https://localhost:5000/api>"], // React app URLs
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"]  // ✅ important
+}));
+
 app.use(express.json());
 
 // Debug middleware to log all requests
