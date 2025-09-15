@@ -19,7 +19,7 @@ const weatherValidation = [
 ];
 
 // Routes
-router.get("/weather", authMiddleware, getAllWeather);
+router.get("/", authMiddleware, getAllWeather);
 router.get("/:id", authMiddleware, getWeatherById);
 router.post("/", authMiddleware, weatherValidation, addWeather);
 router.put("/:id", authMiddleware, weatherValidation, updateWeather);
