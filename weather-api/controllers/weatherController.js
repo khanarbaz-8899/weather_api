@@ -23,13 +23,16 @@ exports.addWeather = async (req, res) => {
   }
 };
 
+
 // GET → All records
 exports.getAllWeather = async (req, res) => {
   try {
     let records;
     if (req.user.role === "admin") {
+      // Admin → sabka data
       records = await Weather.find().populate("user", "name email");
     } else {
+      // Normal user → sirf apna data
       records = await Weather.find({ user: req.user.id });
     }
     res.json(records);
