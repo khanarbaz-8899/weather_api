@@ -32,7 +32,7 @@ export default function App() {
             <ProtectedRoute><Profile /></ProtectedRoute>
           } />
           <Route path="/weather" element={
-            <ProtectedRoute><WeatherList /></ProtectedRoute>
+           <WeatherList />
           } />
           <Route path="/records" element={
             <Navigate to="/weather" replace />
