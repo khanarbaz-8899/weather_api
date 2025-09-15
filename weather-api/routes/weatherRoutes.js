@@ -6,6 +6,7 @@ const {
   getWeatherById,
   updateWeather,
   deleteWeather,
+  getPublicWeather,
 } = require("../controllers/weatherController");
 const { authMiddleware } = require("../middlewares/auth-middleware");
 
@@ -18,6 +19,7 @@ const weatherValidation = [
   body("condition").notEmpty().withMessage("Condition is required"),
 ];
 
+router.get("/public", getPublicWeather);
 // Routes
 router.get("/", authMiddleware, getAllWeather);
 router.get("/:id", authMiddleware, getWeatherById);

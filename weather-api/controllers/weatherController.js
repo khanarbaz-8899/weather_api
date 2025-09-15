@@ -22,7 +22,14 @@ exports.addWeather = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
+exports.getPublicWeather = async (req, res) => {
+  try {
+    const records = await Weather.find().populate("user", "name email");
+    res.json(records);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 // GET → All records
 exports.getAllWeather = async (req, res) => {
